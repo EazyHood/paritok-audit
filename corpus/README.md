@@ -15,6 +15,7 @@ triggered, a traceback it caused.
 | `c4.json` | Live API response, 25 records of nested JSON — structure-heavy, low prose | `https://code4rena.com/api/v1/audits`, fetched 2026-08-01 | public endpoint |
 | `pip_install.log` | Real dependency-resolution output from `pip install --dry-run --upgrade "paritok[proxy]"` | generated on the audit machine | — |
 | `pytest_failure.txt` | A genuine Python traceback, produced by actually running a script that fails — not transcribed from memory | generated on the audit machine | — |
+| `error_log.txt` | 12 real tracebacks across 11 distinct exception types, each actually raised and captured from the interpreter | `python _generate_errors.py` | — |
 
 ## Why these five
 
@@ -27,6 +28,12 @@ They span the axis that matters for a compressor: **information density**.
 - `c4.json` sits in between, and tests whether structure survives.
 - `pytest_failure.txt` is small on purpose: it lands under Paritok's minimum-size
   gate and documents the passthrough path.
+- `error_log.txt` closes a gap the first run left open. None of the original five
+  artefacts contained exception types, so that run said nothing either way about
+  Paritok's claim to protect error strings. Writing tracebacks by hand would have
+  closed the gap dishonestly — invented ones are uniform, and uniformity
+  compresses — so `_generate_errors.py` raises them for real and captures whatever
+  CPython produced.
 
 ## Adding your own
 

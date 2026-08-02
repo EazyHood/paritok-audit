@@ -1,0 +1,149 @@
+[01/12] running _boom_index -- pytest tests/test_session.py::boom_index
+Traceback (most recent call last):
+  File "C:\Users\jhona\paritok-audit\corpus\_generate_errors.py", line 96, in main
+    case()
+    ~~~~^^
+  File "C:\Users\jhona\paritok-audit\corpus\_generate_errors.py", line 25, in _boom_index
+    return rows[7]["id"]
+           ~~~~^^^
+IndexError: list index out of range
+
+[02/12] running _boom_key -- pytest tests/test_session.py::boom_key
+Traceback (most recent call last):
+  File "C:\Users\jhona\paritok-audit\corpus\_generate_errors.py", line 96, in main
+    case()
+    ~~~~^^
+  File "C:\Users\jhona\paritok-audit\corpus\_generate_errors.py", line 30, in _boom_key
+    return cfg["database"]["dsn"]
+           ~~~~~~~~~~~~~~~^^^^^^^
+KeyError: 'dsn'
+
+[03/12] running _boom_type -- pytest tests/test_session.py::boom_type
+Traceback (most recent call last):
+  File "C:\Users\jhona\paritok-audit\corpus\_generate_errors.py", line 96, in main
+    case()
+    ~~~~^^
+  File "C:\Users\jhona\paritok-audit\corpus\_generate_errors.py", line 35, in _boom_type
+    return timeout / 2
+           ~~~~~~~~^~~
+TypeError: unsupported operand type(s) for /: 'str' and 'int'
+
+[04/12] running _boom_attr -- pytest tests/test_session.py::boom_attr
+Traceback (most recent call last):
+  File "C:\Users\jhona\paritok-audit\corpus\_generate_errors.py", line 96, in main
+    case()
+    ~~~~^^
+  File "C:\Users\jhona\paritok-audit\corpus\_generate_errors.py", line 41, in _boom_attr
+    return Session().flush_pending()
+           ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'Session' object has no attribute 'flush_pending'
+
+[05/12] running _boom_value -- pytest tests/test_session.py::boom_value
+Traceback (most recent call last):
+  File "C:\Users\jhona\paritok-audit\corpus\_generate_errors.py", line 96, in main
+    case()
+    ~~~~^^
+  File "C:\Users\jhona\paritok-audit\corpus\_generate_errors.py", line 45, in _boom_value
+    return int("2.0.31")
+ValueError: invalid literal for int() with base 10: '2.0.31'
+
+[06/12] running _boom_json -- pytest tests/test_session.py::boom_json
+Traceback (most recent call last):
+  File "C:\Users\jhona\paritok-audit\corpus\_generate_errors.py", line 96, in main
+    case()
+    ~~~~^^
+  File "C:\Users\jhona\paritok-audit\corpus\_generate_errors.py", line 49, in _boom_json
+    return json.loads('{"orders": [{"id": 500,}]}')
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\json\__init__.py", line 352, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Python314\Lib\json\decoder.py", line 345, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\json\decoder.py", line 361, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ~~~~~~~~~~~~~~^^^^^^^^
+json.decoder.JSONDecodeError: Illegal trailing comma before end of object: line 1 column 23 (char 22)
+
+[07/12] running _boom_zero -- pytest tests/test_session.py::boom_zero
+Traceback (most recent call last):
+  File "C:\Users\jhona\paritok-audit\corpus\_generate_errors.py", line 96, in main
+    case()
+    ~~~~^^
+  File "C:\Users\jhona\paritok-audit\corpus\_generate_errors.py", line 54, in _boom_zero
+    return hits / total
+           ~~~~~^~~~~~~
+ZeroDivisionError: division by zero
+
+[08/12] running _boom_file -- pytest tests/test_session.py::boom_file
+Traceback (most recent call last):
+  File "C:\Users\jhona\paritok-audit\corpus\_generate_errors.py", line 96, in main
+    case()
+    ~~~~^^
+  File "C:\Users\jhona\paritok-audit\corpus\_generate_errors.py", line 58, in _boom_file
+    return pathlib.Path("app/db/session.yaml").read_text()
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Python314\Lib\pathlib\__init__.py", line 787, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\pathlib\__init__.py", line 771, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'app\\db\\session.yaml'
+
+[09/12] running _boom_unpack -- pytest tests/test_session.py::boom_unpack
+Traceback (most recent call last):
+  File "C:\Users\jhona\paritok-audit\corpus\_generate_errors.py", line 96, in main
+    case()
+    ~~~~^^
+  File "C:\Users\jhona\paritok-audit\corpus\_generate_errors.py", line 62, in _boom_unpack
+    host, port = "db-01.internal:5432:extra".split(":")
+    ^^^^^^^^^^
+ValueError: too many values to unpack (expected 2, got 3)
+
+[10/12] running _boom_recursion -- pytest tests/test_session.py::boom_recursion
+Traceback (most recent call last):
+  File "C:\Users\jhona\paritok-audit\corpus\_generate_errors.py", line 96, in main
+    case()
+    ~~~~^^
+  File "C:\Users\jhona\paritok-audit\corpus\_generate_errors.py", line 69, in _boom_recursion
+    return walk({"root": True})
+  File "C:\Users\jhona\paritok-audit\corpus\_generate_errors.py", line 68, in walk
+    return walk(node, depth + 1)
+  File "C:\Users\jhona\paritok-audit\corpus\_generate_errors.py", line 68, in walk
+    return walk(node, depth + 1)
+  File "C:\Users\jhona\paritok-audit\corpus\_generate_errors.py", line 68, in walk
+    return walk(node, depth + 1)
+  [Previous line repeated 3 more times]
+RecursionError: maximum recursion depth exceeded
+
+[11/12] running _boom_import -- pytest tests/test_session.py::boom_import
+Traceback (most recent call last):
+  File "C:\Users\jhona\paritok-audit\corpus\_generate_errors.py", line 96, in main
+    case()
+    ~~~~^^
+  File "C:\Users\jhona\paritok-audit\corpus\_generate_errors.py", line 73, in _boom_import
+    import sqlalchemy_asyncpg_shim  # noqa: F401
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'sqlalchemy_asyncpg_shim'
+
+[12/12] running _boom_chained -- pytest tests/test_session.py::boom_chained
+Traceback (most recent call last):
+  File "C:\Users\jhona\paritok-audit\corpus\_generate_errors.py", line 78, in _boom_chained
+    _boom_key()
+    ~~~~~~~~~^^
+  File "C:\Users\jhona\paritok-audit\corpus\_generate_errors.py", line 30, in _boom_key
+    return cfg["database"]["dsn"]
+           ~~~~~~~~~~~~~~~^^^^^^^
+KeyError: 'dsn'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\jhona\paritok-audit\corpus\_generate_errors.py", line 96, in main
+    case()
+    ~~~~^^
+  File "C:\Users\jhona\paritok-audit\corpus\_generate_errors.py", line 80, in _boom_chained
+    raise RuntimeError("failed to build session for orders-api") from exc
+RuntimeError: failed to build session for orders-api

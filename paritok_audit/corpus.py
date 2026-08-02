@@ -78,6 +78,12 @@ def load(corpus_dir: Path) -> list[Sample]:
             "Fix the failing test test_commit_retries",
             "pytest_failure.txt",
         ),
+        (
+            "error_log",
+            "tool_output",
+            "Triage these 12 failures and tell me which are the same root cause",
+            "error_log.txt",
+        ),
     ]
 
     for name, kind, query, filename in specs:
