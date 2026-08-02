@@ -87,6 +87,36 @@ Output goes to `REPORT.txt`, with the compressed text and a TSV of every lost
 atom written to `out/` so losses can be inspected by hand rather than taken on
 trust.
 
+### Through the proxy
+
+The audit calls `CompressionPipeline` directly, which is right for measurement —
+it isolates compression from network and upstream behaviour. But operators read
+the proxy's `/stats` dashboard, and those counters only move for traffic that
+goes through the proxy. To fill it with the same corpus:
+
+```bash
+paritok proxy                  # terminal 1
+paritok-audit --via-proxy      # terminal 2
+```
+
+```
+  requests                             4
+  input tokens, original          27,431
+  input tokens, forwarded          5,614
+  tokens saved                    21,817
+  compression ratio               20.5%
+  estimated cost saved             $0.05
+```
+
+No upstream API key is needed: the proxy records its statistics *before* it
+forwards, so compression is measured and counted even when the forward itself is
+rejected for want of credentials.
+
+That detail also produced the sharpest evidence in this repo. Four samples came
+back `401` — forward rejected, compression fine. One came back **`500`**: it
+never reached the forward at all. That is the bug below, and it means a live
+agent session gets a 500, not just a library caller getting an exception.
+
 ## Corpus
 
 Five **real** artefacts, not hand-written fixtures — a 1,244-line C++ kernel, a

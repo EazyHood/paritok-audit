@@ -26,7 +26,25 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument(
         "--quiet", action="store_true", help="only print the final report"
     )
+    ap.add_argument(
+        "--via-proxy",
+        nargs="?",
+        const="http://127.0.0.1:8080",
+        metavar="URL",
+        help="replay the corpus through a running Paritok proxy and show its "
+             "/stats dashboard instead of measuring fidelity directly "
+             "(start one with: paritok proxy)",
+    )
     args = ap.parse_args(argv)
+
+    if args.via_proxy:
+        from . import proxy_demo
+
+        snapshot = proxy_demo.replay(args.corpus_dir, args.via_proxy)
+        if snapshot is None:
+            return 1
+        print(proxy_demo.render(snapshot))
+        return 0
 
     samples = corpus.load(args.corpus_dir)
     if not samples:
