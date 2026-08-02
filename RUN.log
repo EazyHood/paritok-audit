@@ -1,21 +1,24 @@
-5 samples:
+6 samples:
   source_c++_header      file_read      46,838 chars
   api_response_json      tool_output    25,279 chars
   readme_markdown        file_read      28,866 chars
   dependency_log         tool_output     9,012 chars
   test_failure           tool_output       528 chars
+  error_log              tool_output     6,788 chars
 
-[1/5] source_c++_header  (46,838 chars) ...
-    16,360 -> 4,972 tok   ratio 69.6%   fidelity  47.8% (96/201)   140.2s
-[2/5] api_response_json  (25,279 chars) ...
+[1/6] source_c++_header  (46,838 chars) ...
+    16,360 -> 4,906 tok   ratio 70.0%   fidelity  42.8% (86/201)   135.5s
+[2/6] api_response_json  (25,279 chars) ...
     FAILED: HTTPStatusError: Client error '400 Bad Request' for url 'http://localhost:11434/v1/chat/completions'
 For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
-[3/5] readme_markdown  (28,866 chars) ...
-     7,873 ->   863 tok   ratio 89.0%   fidelity  15.3% (17/111)    34.5s
-[4/5] dependency_log  (9,012 chars) ...
-     3,045 ->    75 tok   ratio 97.5%   fidelity   4.5% (4/88)    23.7s
-[5/5] test_failure  (528 chars) ...
+[3/6] readme_markdown  (28,866 chars) ...
+     7,873 ->   863 tok   ratio 89.0%   fidelity  15.3% (17/111)    30.4s
+[4/6] dependency_log  (9,012 chars) ...
+     3,045 ->    75 tok   ratio 97.5%   fidelity   4.5% (4/88)     9.0s
+[5/6] test_failure  (528 chars) ...
        153 ->   153 tok   ratio  0.0%   fidelity 100.0% (5/5)     0.0s   [passthrough: returned unchanged, no reason given]
+[6/6] error_log  (6,788 chars) ...
+     2,073 ->   414 tok   ratio 80.0%   fidelity  54.9% (28/51)     9.0s
 
 ==============================================================================
 PARITOK AUDIT -- savings vs fidelity on real agent traffic
@@ -23,21 +26,23 @@ PARITOK AUDIT -- savings vs fidelity on real agent traffic
 
 sample                    tokens in     out   saved  fidelity   recall
 ------------------------------------------------------------------------------
-source_c++_header            16,360   4,972  69.6%     47.8%    exact
+source_c++_header            16,360   4,906  70.0%     42.8%    exact
 readme_markdown               7,873     863  89.0%     15.3%    exact
 dependency_log                3,045      75  97.5%      4.5%    exact
 test_failure                    153     153   0.0%    100.0%      n/a
+error_log                     2,073     414  80.0%     54.9%    exact
 ------------------------------------------------------------------------------
-TOTAL                        27,431   6,063  77.9%
+TOTAL                        29,504   6,411  78.3%
 
 Fidelity by atom category (compressed samples only)
 ------------------------------------------------------------------------------
-  number          17/129     13.2%  ####
-  command          3/16      18.8%  ######
+  command          2/16      12.5%  ####
+  number          18/137     13.1%  ####
   url              5/24      20.8%  ######
+  path             9/38      23.7%  #######
   hash            19/59      32.2%  ##########
-  identifier      55/141     39.0%  ############
-  path            18/31      58.1%  #################
+  identifier      72/166     43.4%  #############
+  error           10/11      90.9%  ###########################
 
 Notes
 ------------------------------------------------------------------------------

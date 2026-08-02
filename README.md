@@ -39,8 +39,13 @@ literals, shell commands, URLs, hashes — then checks, by exact substring searc
 how many survived compression.
 
 No LLM judge. No scoring model. No rubric. Every atom is a literal substring of
-the source, so retention is *decidable*, and two runs produce byte-identical
-numbers.
+the source, so retention is *decidable*: given a compressed output, the score is
+a search, not an opinion.
+
+The compressor itself is not deterministic, so the numbers do move between runs —
+measured, the C++ sample scored 47.8% and 42.8% on two consecutive runs. Treat
+single-run figures as a few points wide. What does not move is the *method*: rerun
+it and you get a number you can argue with, not a vibe.
 
 Atoms are grouped by how expensive they are to lose:
 
@@ -133,13 +138,14 @@ Run on the corpus below, Paritok `1.2.8`, `paritok-4b-v1` q4 via Ollama, `num_ct
 
 | sample | tokens in | out | saved | fidelity | recall |
 |---|---:|---:|---:|---:|:--:|
-| `source_c++_header` | 16,360 | 4,972 | 69.6% | 47.8% | exact |
+| `source_c++_header` | 16,360 | 4,906 | 70.0% | 42.8% | exact |
 | `readme_markdown` | 7,873 | 863 | 89.0% | 15.3% | exact |
 | `dependency_log` | 3,045 | 75 | 97.5% | 4.5% | exact |
+| `error_log` | 2,073 | 414 | 80.0% | 54.9% | exact |
 | `test_failure` | 153 | 153 | 0.0% | — | passthrough |
-| **total** | **27,431** | **6,063** | **77.9%** | | |
+| **total** | **29,504** | **6,411** | **78.3%** | | |
 
-**The savings claim holds.** 77.9% against a stated ~74% on typical workloads, on
+**The savings claim holds.** 78.3% against a stated ~74% on typical workloads, on
 traffic Paritok has never seen.
 
 **Recall holds, and it is the finding that matters.** The shadow store returned
@@ -154,28 +160,34 @@ What survives, when something has to go:
 
 | category | kept | rate | |
 |---|---|---:|---|
-| `path` | 18/31 | 58.1% | `█████████████████` |
-| `identifier` | 55/141 | 39.0% | `████████████` |
+| `error` | 10/11 | **90.9%** | `███████████████████████████` |
+| `identifier` | 72/166 | 43.4% | `█████████████` |
 | `hash` | 19/59 | 32.2% | `██████████` |
+| `path` | 9/38 | 23.7% | `███████` |
 | `url` | 5/24 | 20.8% | `██████` |
-| `command` | 3/16 | 18.8% | `██████` |
-| `number` | 17/129 | 13.2% | `████` |
+| `number` | 18/137 | 13.1% | `████` |
+| `command` | 2/16 | 12.5% | `████` |
 
-The ordering matches Paritok's stated priorities — paths survive best, and the
-model is visibly protecting them — but **numeric literals are dropped hardest**,
-at 13.2%. For a coding agent those are line numbers, versions, sizes and error
-codes: `line 214`, `2.0.31`, `0x1f4`. They are cheap to keep and expensive to
-lose, which makes them the most promising place to spend the next few points of
-budget.
+**The error-string claim checks out.** Paritok's README says the model protects
+error strings; on a log of 12 real tracebacks it kept 10 of 11 exception types at
+80% compression. The one it dropped was a `RuntimeError` wrapper whose underlying
+`KeyError` survived — so the root cause came through. That is the single clearest
+"working as designed" result in this repo, and it is worth stating as loudly as
+the failures.
 
-Two caveats stated plainly:
+**Numeric literals and commands are the weak end**, at 13.1% and 12.5%. For a
+coding agent, numbers are line numbers, versions, sizes and error codes —
+`line 214`, `2.0.31`, `0x1f4` — and commands are how it reproduces a failure at
+all. Both are among the cheapest tokens to keep and the most expensive to lose,
+which makes them the most promising place to spend the next few points of budget.
 
-- **The `error` category is untested here.** None of the compressed samples
-  contained exception types, so this run says nothing about Paritok's claim that
-  it protects error strings. Absence of a row is not a failure — it is a gap in
-  the corpus.
+Two caveats that bound all of the above:
+
 - **Fidelity is not solve quality.** Surviving facts are necessary for an agent to
-  act correctly, not sufficient.
+  act correctly, not sufficient. This measures a precondition, not an outcome.
+- **Low fidelity is not a defect when recall is exact.** It is the trade being
+  made. The point of the tool is to make that trade visible per category, not to
+  score it.
 
 ### A bug this found
 
