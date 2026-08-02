@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.venv/
+_smoke.py
+_first_run.py
+_boom.py
+out/

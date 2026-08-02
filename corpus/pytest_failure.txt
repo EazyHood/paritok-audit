@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "C:\Users\jhona\paritok-audit\_boom.py", line 5, in <module>
+    main()
+    ~~~~^^
+  File "C:\Users\jhona\paritok-audit\_boom.py", line 4, in main
+    def main(): return build_session(load_config("corpus/c4.json"))
+                       ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jhona\paritok-audit\_boom.py", line 3, in build_session
+    def build_session(cfg): return cfg["database"]["dsn"]
+                                   ~~~^^^^^^^^^^^^
+KeyError: 'database'
