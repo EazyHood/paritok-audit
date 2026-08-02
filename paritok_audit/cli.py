@@ -35,6 +35,14 @@ def main(argv: list[str] | None = None) -> int:
              "/stats dashboard instead of measuring fidelity directly "
              "(start one with: paritok proxy)",
     )
+    ap.add_argument(
+        "--only",
+        action="append",
+        metavar="NAME",
+        help="audit just these samples by name; repeatable. Useful for a quick "
+             "pass -- the full corpus takes minutes because the C++ header alone "
+             "is 16k tokens",
+    )
     args = ap.parse_args(argv)
 
     if args.via_proxy:
@@ -47,6 +55,14 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     samples = corpus.load(args.corpus_dir)
+    if args.only:
+        wanted = set(args.only)
+        unknown = wanted - {s.name for s in samples}
+        if unknown:
+            print(f"unknown sample(s): {', '.join(sorted(unknown))}", file=sys.stderr)
+            print(f"available: {', '.join(s.name for s in samples)}", file=sys.stderr)
+            return 1
+        samples = [s for s in samples if s.name in wanted]
     if not samples:
         print(
             f"no corpus artefacts found in {args.corpus_dir}/ -- see corpus/README.md",
