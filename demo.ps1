@@ -36,10 +36,21 @@ Write-Host ""
 Start-Sleep -Seconds 2
 
 # ---------------------------------------------------------------- 1
+# Ollama descarga el modelo de memoria tras unos minutos de inactividad, así que
+# `ollama ps` saldría vacío y el video mostraría "corriendo" sobre una tabla en
+# blanco. Lo cargamos antes, en silencio.
+Write-Host "  cargando el modelo..." -ForegroundColor DarkGray
+try {
+  Invoke-RestMethod -Uri "http://127.0.0.1:11434/api/generate" -Method Post -TimeoutSec 120 `
+    -Body (@{ model = "paritok-4b-v1"; prompt = "hi"; stream = $false; keep_alive = "10m" } | ConvertTo-Json) `
+    -ContentType "application/json" | Out-Null
+} catch { }
+Clear-Host
+
 Titulo "1. Paritok is really running, locally"
 Comando "ollama ps"
 & "$env:LOCALAPPDATA\Programs\Ollama\ollama.exe" ps
-Start-Sleep -Seconds 2
+Start-Sleep -Seconds 3
 
 # ---------------------------------------------------------------- 2
 Titulo "2. Audit real agent traffic -- savings AND fidelity"
