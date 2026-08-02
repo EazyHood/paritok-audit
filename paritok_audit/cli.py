@@ -43,6 +43,12 @@ def main(argv: list[str] | None = None) -> int:
              "pass -- the full corpus takes minutes because the C++ header alone "
              "is 16k tokens",
     )
+    ap.add_argument(
+        "--levels",
+        action="store_true",
+        help="sweep SEG levels L0-L3 on each sample and print the savings/fidelity "
+             "curve, instead of auditing once at the default level",
+    )
     args = ap.parse_args(argv)
 
     if args.via_proxy:
@@ -86,6 +92,19 @@ def main(argv: list[str] | None = None) -> int:
     except Exception:
         storage = None
     pipeline = CompressionPipeline(cfg, storage) if storage else CompressionPipeline(cfg)
+
+    if args.levels:
+        from . import levels
+
+        chunks: list[str] = []
+        for sample in samples:
+            log(f"{sample.name}  ({sample.chars:,d} chars)")
+            points = levels.sweep(sample, pipeline, log=log)
+            chunks.append(levels.render(sample.name, points))
+        text = "\n".join(chunks)
+        print(text)
+        args.out.write_text(text, encoding="utf-8")
+        return 0
 
     result = harness.run(samples, pipeline, storage, log=log)
     text = harness.report(result)

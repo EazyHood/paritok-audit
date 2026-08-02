@@ -216,6 +216,66 @@ boundary-less guard that exists specifically to prevent it.
 Fixed and sent upstream: [Paritok-official/paritok-4b-v1#15](https://github.com/Paritok-official/paritok-4b-v1/pull/15).
 After the fix the same input compresses 7,773 → 609 tokens (92.2%).
 
+### And a second one, which the tool almost got wrong
+
+Paritok exposes four compression levels, L0–L3. Nobody publishes the *curve* —
+what each level costs — so measuring it seemed like an obvious thing this tool
+should do. The sweep came back like this:
+
+| level | tokens out | saved | fidelity |
+|---|---:|---:|---:|
+| L0 | 414 | 80.0% | 54.9% |
+| L1 | 414 | 80.0% | 54.9% |
+| L2 | 414 | 80.0% | 54.9% |
+| L3 | 414 | 80.0% | 54.9% |
+
+Byte-identical. The honest-looking conclusion — *"the level parameter does
+nothing"* — was wrong, and the timings are what said so: **9.6s for L0, then
+0.0s, 0.0s, 0.0s.** Those are cache hits.
+
+The cache is keyed on `content_hash(content)` and nothing else, so `query`,
+`level` and `kind` never reach it. Measured on cold, unique content:
+
+```
+query="Fix the IntegrityError on commit"             level=L0  ->  159 tok  cache_hit=False
+query="Explain the tax rounding TODO in compute_tax" level=L3  ->  159 tok  cache_hit=True
+identical output: yes
+```
+
+Two opposite intents, one answer. That matters because `compress()` documents
+`query` as *"USER INTENT — drives keep/drop"*: query-conditioned compression is
+the whole design, and it stops happening the moment the same bytes are seen
+twice — which for a coding agent is constant.
+
+Fixed in [#17](https://github.com/Paritok-official/paritok-4b-v1/pull/17), keying
+on content + level + kind + query while leaving `sid` content-only so
+`expand_context` keeps resolving by content.
+
+**And then the levels still did not behave.** With the cache fixed and all four
+calls genuinely reaching the model, `readme_markdown` gives:
+
+| level | tokens out | saved | fidelity |
+|---|---:|---:|---:|
+| L0 | 863 | 89.0% | 15.3% |
+| L1 | 863 | 89.0% | 15.3% |
+| **L2** | **758** | **90.4%** | **9.0%** |
+| L3 | 863 | 89.0% | 15.3% |
+
+L2 compresses harder than L3, and L3 — the most aggressive setting — returns
+byte-identical output to L0. The parameter reaches the model correctly (the SEG
+header carries it), so this is the model not treating level as an ordering,
+not a plumbing bug. Reported upstream in the same PR thread.
+
+Two axes and a stopwatch, three findings: the cache bug, the level behaviour the
+cache was hiding, and — very nearly — a wrong conclusion. A savings-only
+benchmark would have printed four identical rows and moved on.
+
+Run it yourself:
+
+```bash
+paritok-audit --levels --only readme_markdown
+```
+
 ## What this is not
 
 - **Not a quality benchmark.** It does not claim to measure whether an agent
