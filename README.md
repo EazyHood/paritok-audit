@@ -99,7 +99,67 @@ measures nothing.
 
 ## Results
 
-<!-- RESULTS -->
+Run on the corpus below, Paritok `1.2.8`, `paritok-4b-v1` q4 via Ollama, `num_ctx=8192`.
+
+| sample | tokens in | out | saved | fidelity | recall |
+|---|---:|---:|---:|---:|:--:|
+| `source_c++_header` | 16,360 | 4,972 | 69.6% | 47.8% | exact |
+| `readme_markdown` | 7,873 | 863 | 89.0% | 15.3% | exact |
+| `dependency_log` | 3,045 | 75 | 97.5% | 4.5% | exact |
+| `test_failure` | 153 | 153 | 0.0% | — | passthrough |
+| **total** | **27,431** | **6,063** | **77.9%** | | |
+
+**The savings claim holds.** 77.9% against a stated ~74% on typical workloads, on
+traffic Paritok has never seen.
+
+**Recall holds, and it is the finding that matters.** The shadow store returned
+the byte-exact original for every compressed sample. Fidelity of 15% would be
+alarming for a lossy compressor; for a *non-destructive* one it is the design
+working as advertised. Read the two columns together or you will draw the wrong
+conclusion from either.
+
+### Fidelity by atom category
+
+What survives, when something has to go:
+
+| category | kept | rate | |
+|---|---|---:|---|
+| `path` | 18/31 | 58.1% | `█████████████████` |
+| `identifier` | 55/141 | 39.0% | `████████████` |
+| `hash` | 19/59 | 32.2% | `██████████` |
+| `url` | 5/24 | 20.8% | `██████` |
+| `command` | 3/16 | 18.8% | `██████` |
+| `number` | 17/129 | 13.2% | `████` |
+
+The ordering matches Paritok's stated priorities — paths survive best, and the
+model is visibly protecting them — but **numeric literals are dropped hardest**,
+at 13.2%. For a coding agent those are line numbers, versions, sizes and error
+codes: `line 214`, `2.0.31`, `0x1f4`. They are cheap to keep and expensive to
+lose, which makes them the most promising place to spend the next few points of
+budget.
+
+Two caveats stated plainly:
+
+- **The `error` category is untested here.** None of the compressed samples
+  contained exception types, so this run says nothing about Paritok's claim that
+  it protects error strings. Absence of a row is not a failure — it is a gap in
+  the corpus.
+- **Fidelity is not solve quality.** Surviving facts are necessary for an agent to
+  act correctly, not sufficient.
+
+### A bug this found
+
+`api_response_json` — a 25,279-char single-line API response — did not compress.
+It raised `httpx.HTTPStatusError: 400 Bad Request`.
+
+The cause is line length, not size. The same JSON re-indented is *larger*
+(33 KB) and compresses fine; a 46 KB C++ header with 1,244 newlines is fine too.
+`_token_split_block` only ever cuts *between* lines, so a single line above
+`CHUNK_SIZE` passes through whole and overflows the model context — bypassing the
+boundary-less guard that exists specifically to prevent it.
+
+Fixed and sent upstream: [`fix(chunking): split a single line larger than CHUNK_SIZE`](https://github.com/Paritok-official/paritok-4b-v1).
+After the fix the same input compresses 7,773 → 609 tokens (92.2%).
 
 ## What this is not
 
