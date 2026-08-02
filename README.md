@@ -8,6 +8,16 @@
   <a href="https://github.com/Paritok-official/paritok-4b-v1"><img src="https://img.shields.io/badge/built%20on-Paritok-purple" alt="Paritok"/></a>
 </p>
 
+<p align="center">
+  <img src="cover.png" width="820"
+       alt="Context compression saved 78.3% of my tokens. Recall by category: error strings 90.9%, identifiers 43.4%, hashes 32.2%, paths 23.7%, URLs 20.8%, numbers 13.1%, shell commands 12.5%."/>
+</p>
+
+<p align="center"><sub>
+  Every figure above is a single-run measurement from <code>REPORT.txt</code>.
+  Regenerate with <code>python make_cover.py</code> rather than editing the image.
+</sub></p>
+
 ---
 
 ## The gap
