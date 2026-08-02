@@ -62,7 +62,7 @@ doesn't. The two must be read together; neither alone is a verdict.
 ## Install
 
 ```bash
-git clone https://github.com/<your-handle>/paritok-audit
+git clone https://github.com/EazyHood/paritok-audit
 cd paritok-audit
 pip install -e .
 ```
@@ -158,7 +158,7 @@ The cause is line length, not size. The same JSON re-indented is *larger*
 `CHUNK_SIZE` passes through whole and overflows the model context — bypassing the
 boundary-less guard that exists specifically to prevent it.
 
-Fixed and sent upstream: [`fix(chunking): split a single line larger than CHUNK_SIZE`](https://github.com/Paritok-official/paritok-4b-v1).
+Fixed and sent upstream: [Paritok-official/paritok-4b-v1#15](https://github.com/Paritok-official/paritok-4b-v1/pull/15).
 After the fix the same input compresses 7,773 → 609 tokens (92.2%).
 
 ## What this is not
