@@ -39,8 +39,56 @@ def _read(path: Path) -> str | None:
         return None
 
 
-def load(corpus_dir: Path) -> list[Sample]:
-    """Load whatever real artefacts are present in `corpus_dir`.
+# Content-type hint by extension, for files the shipped corpus doesn't name.
+# Paritok's keep/drop behaviour is conditioned on `kind`, so guessing badly is
+# worse than guessing coarsely -- these are the two kinds it actually trains on.
+_KIND_BY_SUFFIX = {
+    ".py": "file_read", ".js": "file_read", ".ts": "file_read",
+    ".tsx": "file_read", ".jsx": "file_read", ".rs": "file_read",
+    ".go": "file_read", ".c": "file_read", ".h": "file_read",
+    ".cpp": "file_read", ".hpp": "file_read", ".java": "file_read",
+    ".rb": "file_read", ".php": "file_read", ".cs": "file_read",
+    ".md": "file_read", ".rst": "file_read",
+}
+_SKIP_SUFFIXES = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".pdf", ".zip", ".pyc"}
+
+
+def _discovered(corpus_dir: Path, already: set[str]) -> list[Sample]:
+    """Pick up any other file in the directory, so bringing your own costs nothing.
+
+    The shipped artefacts are curated -- each has the query an agent would have
+    been pursuing, which matters because Paritok's decisions are query-conditioned.
+    A dropped-in file has no such context, so it gets a generic query and a kind
+    inferred from its extension. That is weaker, and the report says so, but it
+    beats the alternative of having to edit Python to measure your own traffic.
+
+    Put `<name>.query` next to a file to supply the real intent.
+    """
+    out: list[Sample] = []
+    for path in sorted(corpus_dir.iterdir()):
+        if not path.is_file() or path.name in already:
+            continue
+        if path.suffix in _SKIP_SUFFIXES or path.suffix == ".query":
+            continue
+        if path.name.startswith(("_", ".")) or path.name == "README.md":
+            continue
+
+        text = _read(path)
+        if not text or not text.strip():
+            continue
+
+        sidecar = path.with_suffix(path.suffix + ".query")
+        query = (_read(sidecar) or "").strip() or (
+            f"Work with the contents of {path.name}"
+        )
+        kind = _KIND_BY_SUFFIX.get(path.suffix, "tool_output")
+        out.append(Sample(path.stem, kind, query, text))
+
+    return out
+
+
+def load(corpus_dir: Path, discover: bool = True) -> list[Sample]:
+    """Load the curated artefacts, then anything else the directory contains.
 
     Missing files are skipped rather than faked, so a run never silently
     substitutes invented data for the real thing.
@@ -86,10 +134,15 @@ def load(corpus_dir: Path) -> list[Sample]:
         ),
     ]
 
+    curated: set[str] = set()
     for name, kind, query, filename in specs:
+        curated.add(filename)
         text = _read(corpus_dir / filename)
         if text:
             samples.append(Sample(name, kind, query, text))
+
+    if discover and corpus_dir.is_dir():
+        samples.extend(_discovered(corpus_dir, curated))
 
     return samples
 

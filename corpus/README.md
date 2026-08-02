@@ -35,12 +35,28 @@ They span the axis that matters for a compressor: **information density**.
   compresses — so `_generate_errors.py` raises them for real and captures whatever
   CPython produced.
 
-## Adding your own
+## Bring your own
 
-Drop a file in this directory and register it in `paritok_audit/corpus.py` with the
-`query` an agent would have been pursuing when it read that content. Paritok's
-keep/drop decisions are query-conditioned, so measuring without the intent would
-be measuring it unfairly.
+Drop a file in this directory. That's it — it gets picked up on the next run, with
+its content type inferred from the extension.
 
-Do **not** add private session logs. The audit reads whatever is here, and this
-directory is published.
+```bash
+cp ~/work/failing-build.log corpus/
+paritok-audit
+```
+
+Paritok's keep/drop decisions are **query-conditioned**, so a file with no stated
+intent is measured with a generic one, which is weaker. Put the real intent in a
+sidecar to fix that:
+
+```bash
+echo "Find which dependency pulled in torch" > corpus/failing-build.log.query
+```
+
+The five shipped artefacts are curated precisely because each carries the query an
+agent would plausibly have been pursuing. Discovered files are a convenience, not
+an equal-quality measurement — the point is that measuring your own traffic should
+not require editing Python.
+
+Do **not** add private session logs to a corpus you intend to publish. The audit
+reads whatever is here.

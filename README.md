@@ -88,6 +88,19 @@ paritok-audit                 # audits ./corpus
 paritok-audit path/to/corpus  # or your own artefacts
 ```
 
+**Bring your own traffic.** Drop any file into the corpus directory and it is picked
+up on the next run — content type inferred from the extension, no code to edit:
+
+```bash
+cp ~/work/failing-build.log corpus/
+echo "Find which dependency pulled in torch" > corpus/failing-build.log.query
+paritok-audit
+```
+
+The sidecar `.query` matters more than it looks: Paritok's keep/drop decisions are
+conditioned on what the agent was trying to do, so measuring without the intent
+measures it unfairly.
+
 Output goes to `REPORT.txt`, with the compressed text and a TSV of every lost
 atom written to `out/` so losses can be inspected by hand rather than taken on
 trust.

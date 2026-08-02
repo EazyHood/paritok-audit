@@ -4,13 +4,14 @@ PARITOK AUDIT -- savings vs fidelity on real agent traffic
 
 sample                    tokens in     out   saved  fidelity   recall
 ------------------------------------------------------------------------------
+dependency_log                3,045      75  97.5%      4.5%    exact
 error_log                     2,073     414  80.0%     54.9%    exact
 ------------------------------------------------------------------------------
-TOTAL                         2,073     414  80.0%
+TOTAL                         5,118     489  90.4%
 
 Fidelity by atom category (compressed samples only)
 ------------------------------------------------------------------------------
-  number           1/8       12.5%  ####
+  number           5/94       5.3%  ##
   path             2/7       28.6%  #########
-  identifier      15/25      60.0%  ##################
+  identifier      15/27      55.6%  #################
   error           10/11      90.9%  ###########################
